@@ -1,12 +1,18 @@
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
-from data_utils import dump_pkl
+# from data_utils import dump_pkl
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+w2v_bin_path = f"{BASE_DIR}/w2v.bin"
 
 def read_lines(path, col_sep=None):
+    '''
+    读取path文件所有的句子
+    :param path:
+    :param col_sep:
+    :return: [line, line...]
+    '''
     lines = []
     with open(path, mode='r', encoding='utf-8') as f:
         for line in f:
@@ -18,8 +24,14 @@ def read_lines(path, col_sep=None):
                 lines.append(line)
     return lines
 
-
 def extract_sentence(train_x_seg_path, train_y_seg_path, test_seg_path):
+    '''
+    整合分好词后的train,test data
+    :param train_x_seg_path:
+    :param train_y_seg_path:
+    :param test_seg_path:
+    :return: [line, line...]
+    '''
     ret = []
     lines = read_lines(train_x_seg_path)
     lines += read_lines(train_y_seg_path)
@@ -27,7 +39,6 @@ def extract_sentence(train_x_seg_path, train_y_seg_path, test_seg_path):
     for line in lines:
         ret.append(line)
     return ret
-
 
 def save_sentence(lines, sentence_path):
     with open(sentence_path, 'w', encoding='utf-8') as f:
@@ -37,33 +48,39 @@ def save_sentence(lines, sentence_path):
 
 
 def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sentence_path='',
-          w2v_bin_path="w2v.bin", min_count=1):
+          w2v_bin_path=w2v_bin_path, min_count=1):
     sentences = extract_sentence(train_x_seg_path, test_y_seg_path, test_seg_path)
     save_sentence(sentences, sentence_path)
     print('train w2v model...')
     # train model
     """
     通过gensim工具完成word2vec的训练，输入格式采用sentences，使用skip-gram，embedding维度256
-    your code
-    w2v = （one line）
     """
+    w2v = Word2Vec(sentences=LineSentence(sentence_path)
+                              , sg=1
+                              , hs=1
+                              , workers=4
+                              , min_count=min_count
+                              , size=256)
+    print("word2vec model done")
+
     w2v.wv.save_word2vec_format(w2v_bin_path, binary=True)
     print("save %s ok." % w2v_bin_path)
     # test
     sim = w2v.wv.similarity('技师', '车主')
     print('技师 vs 车主 similarity score:', sim)
     # load model
-    model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
-    word_dict = {}
-    for word in model.vocab:
-        word_dict[word] = model[word]
-    dump_pkl(word_dict, out_path, overwrite=True)
+    # model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
+    # word_dict = {}
+    # for word in model.vocab:
+    #     word_dict[word] = model[word]
+    # dump_pkl(word_dict, out_path, overwrite=True)
 
 
 if __name__ == '__main__':
-    build('{}/datasets/train_set.seg_x.txt'.format(BASE_DIR),
-          '{}/datasets/train_set.seg_y.txt'.format(BASE_DIR),
-          '{}/datasets/test_set.seg_x.txt'.format(BASE_DIR),
-          out_path='{}/datasets/word2vec.txt'.format(BASE_DIR),
-          sentence_path='{}/datasets/sentences.txt'.format(BASE_DIR))
+    build('{}/data/train_set.seg_x.txt'.format(BASE_DIR),
+          '{}/data/train_set.seg_y.txt'.format(BASE_DIR),
+          '{}/data/test_set.seg_x.txt'.format(BASE_DIR),
+          out_path='{}/data/word2vec.txt'.format(BASE_DIR),
+          sentence_path='{}/data/sentences.txt'.format(BASE_DIR))
 
