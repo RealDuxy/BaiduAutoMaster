@@ -1,7 +1,6 @@
 import jieba
 from jieba import posseg
 
-
 # def segment_line(line):
 #     tokens = jieba.cut(line, cut_all=False)
 #     return " ".join(tokens)
@@ -12,7 +11,6 @@ from jieba import posseg
 #         tokens = line.split("|")
 #         result = [segment_line(t) for t in tokens]
 #         return " | ".join(result)
-
 
 def segment(sentence, cut_type='word', pos=False):
     """
