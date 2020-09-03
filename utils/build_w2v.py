@@ -3,6 +3,9 @@ from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
 # from data_utils import dump_pkl
 import os
+
+from utils.data_utils import dump_pkl
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 w2v_bin_path = f"{BASE_DIR}/w2v.bin"
 
@@ -26,7 +29,7 @@ def read_lines(path, col_sep=None):
 
 def extract_sentence(train_x_seg_path, train_y_seg_path, test_seg_path):
     '''
-    整合分好词后的train,test data
+    整合分好词后的train,test datasets
     :param train_x_seg_path:
     :param train_y_seg_path:
     :param test_seg_path:
@@ -70,17 +73,17 @@ def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sente
     sim = w2v.wv.similarity('技师', '车主')
     print('技师 vs 车主 similarity score:', sim)
     # load model
-    # model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
-    # word_dict = {}
-    # for word in model.vocab:
-    #     word_dict[word] = model[word]
-    # dump_pkl(word_dict, out_path, overwrite=True)
+    model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
+    word_dict = {}
+    for word in model.vocab:
+        word_dict[word] = model[word]
+    dump_pkl(word_dict, out_path, overwrite=True)
 
 
 if __name__ == '__main__':
-    build('{}/data/train_set.seg_x.txt'.format(BASE_DIR),
-          '{}/data/train_set.seg_y.txt'.format(BASE_DIR),
-          '{}/data/test_set.seg_x.txt'.format(BASE_DIR),
-          out_path='{}/data/word2vec.txt'.format(BASE_DIR),
-          sentence_path='{}/data/sentences.txt'.format(BASE_DIR))
+    build('{}/datasets/train_set.seg_x.txt'.format(BASE_DIR),
+          '{}/datasets/train_set.seg_y.txt'.format(BASE_DIR),
+          '{}/datasets/test_set.seg_x.txt'.format(BASE_DIR),
+          out_path='{}/datasets/word2vec.txt'.format(BASE_DIR),
+          sentence_path='{}/datasets/sentences.txt'.format(BASE_DIR))
 
