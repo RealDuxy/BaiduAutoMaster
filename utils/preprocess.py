@@ -19,9 +19,9 @@ def load_stop_words(stopword_path):
     stop_words = [stop_word.strip() for stop_word in stop_words]
     return stop_words
 
-stop_words_list = load_stop_words(f'{BASE_DIR}/哈工大停用词表.txt')
+# stop_words_list = load_stop_words(f'{BASE_DIR}/哈工大停用词表.txt')
 # print(f"停用词已加载: {len(stop_words_list)}")
-# stop_words_list = ["，", "|", "[", "]" , "。", ",", "."]
+stop_words_list = ['|', '[', ']', '语音', '图片', ' ']
 
 def filter_sentence(words_list):
     '''
@@ -56,9 +56,6 @@ def parse_data(train_path, test_path):
     # print('train_y is ', len(train_y))
     train_y = train_y.apply(preprocess_sentence)
     print('train_y is ', len(train_y))
-    # if 'Report' in train_df.columns:
-        # train_y = train_df.Report
-        # print('train_y is ', len(train_y))
     test_df = pd.read_csv(test_path, encoding='utf-8')
     test_df.fillna('', inplace=True)
     for model in test_df.Model:
