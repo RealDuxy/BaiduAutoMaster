@@ -2,3 +2,4 @@
 datasets/*.txt
 datasets/reverse_vocab.txt
 *.txt
+*.bin
