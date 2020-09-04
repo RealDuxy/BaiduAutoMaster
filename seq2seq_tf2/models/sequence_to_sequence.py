@@ -30,18 +30,17 @@ class SequenceToSequence(tf.keras.Model):
     def call(self, enc_output, dec_inp, dec_hidden, dec_tar):
         predictions = []
         attentions = []
+        # 初始化 context_vector
         context_vector, _ = self.attention(dec_hidden,  # shape=(16, 256)
                                            enc_output) # shape=(16, 200, 256)
 
         for t in range(dec_tar.shape[1]): # 50
             # Teachering Forcing
-            """
-            应用decoder来一步一步预测生成词语概论分布
-            your code
-            如：xxx = self.decoder(), 采用Teachering Forcing方法
-            """
+            dec_output, pred, dec_hidden = self.decoder(tf.expand_dims(dec_inp[:, t], 1)
+                                                        , dec_hidden
+                                                        , enc_output
+                                                        , context_vector)
             context_vector, attn_dist = self.attention(dec_hidden, enc_output)
-            
             predictions.append(pred)
             attentions.append(attn_dist)
 

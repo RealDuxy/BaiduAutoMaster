@@ -18,10 +18,10 @@ def read_data(path_1, path_2, path_3):
             words = line.split()
 
         for line in f2:
-            words += line.split(' ')
+            words += line.split()
 
         for line in f3:
-            words += line.split(' ')
+            words += line.split()
 
     return words
 
@@ -68,5 +68,5 @@ if __name__ == '__main__':
                       '{}/datasets/train_set.seg_y.txt'.format(BASE_DIR),
                       '{}/datasets/test_set.seg_x.txt'.format(BASE_DIR))
     vocab, reverse_vocab = build_vocab(lines)
-    save_word_dict(vocab, '{}/vocab.txt'.format(BASE_DIR))
-    save_word_dict(reverse_vocab, '{}/reverse_vocab.txt'.format(BASE_DIR))
+    save_word_dict(vocab, '{}/datasets/vocab.txt'.format(BASE_DIR))
+    save_word_dict(reverse_vocab, '{}/datasets/reverse_vocab.txt'.format(BASE_DIR))

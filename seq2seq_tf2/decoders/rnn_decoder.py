@@ -38,7 +38,7 @@ class Decoder(tf.keras.layers.Layer):
         super(Decoder, self).__init__()
         self.batch_sz = batch_sz
         self.dec_units = dec_units
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim, weights=embedding_matrix, trainable=True)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], trainable=True)
         self.gru = tf.keras.layers.GRU(units=self.dec_units  # dimensionality of the output space
                                            # Whether to return the last output in the output sequence, or the full
                                            # sequence.
