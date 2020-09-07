@@ -1,7 +1,7 @@
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
-# from data_utils import dump_pkl
+from utils.data_utils import dump_pkl
 import os
 
 from utils.data_utils import dump_pkl
