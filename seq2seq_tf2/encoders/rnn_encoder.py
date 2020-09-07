@@ -18,7 +18,9 @@ class Encoder(tf.keras.layers.Layer):
         # self.enc_units = enc_units // 2
 
         # 定义Embedding层，加载预训练的词向量
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], trainable=True)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,
+                                                   weights=[embedding_matrix],
+                                                   trainable=False)
         # tf.keras.layers.GRU自动匹配cpu、gpu
         # 定义单向的GRU层
         self.gru = tf.keras.layers.GRU(units=self.enc_units  # dimensionality of the output space
@@ -30,7 +32,6 @@ class Encoder(tf.keras.layers.Layer):
                                            # This is required in Bidirectional
                                            , return_state=True
                                            )
-
         self.bigru = tf.keras.layers.Bidirectional(self.gru, merge_mode='concat')
 
     def call(self, x, hidden):

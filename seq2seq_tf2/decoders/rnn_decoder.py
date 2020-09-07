@@ -38,7 +38,9 @@ class Decoder(tf.keras.layers.Layer):
         super(Decoder, self).__init__()
         self.batch_sz = batch_sz
         self.dec_units = dec_units
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], trainable=True)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,
+                                                   weights=[embedding_matrix],
+                                                   trainable=False)
         self.gru = tf.keras.layers.GRU(units=self.dec_units  # dimensionality of the output space
                                            # Whether to return the last output in the output sequence, or the full
                                            # sequence.
@@ -49,7 +51,7 @@ class Decoder(tf.keras.layers.Layer):
                                            , return_state=True
                                            , recurrent_initializer='glorot_uniform'
                                            )
-        self.dropout = tf.keras.layers.Dropout(0.5)
+        # self.dropout = tf.keras.layers.Dropout(0.5)
         self.fc = tf.keras.layers.Dense(vocab_size, activation="softmax")
 
     def call(self, x, hidden, enc_output, context_vector):
@@ -66,7 +68,7 @@ class Decoder(tf.keras.layers.Layer):
         output, state = self.gru(x)
         # output shape == (batch_size * 1, hidden_size)
         output = tf.reshape(output, (-1, output.shape[2]))
-        output = self.dropout(output)
+        # output = self.dropout(output)
         out = self.fc(output)
 
         return x, out, state
