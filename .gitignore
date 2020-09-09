@@ -12,3 +12,4 @@ ckpt/seq2seq/checkpoint/checkpoint
 *.md
 *.md
 *.ipynb
+*.zip
