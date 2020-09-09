@@ -3,3 +3,12 @@ datasets/*.txt
 datasets/reverse_vocab.txt
 *.txt
 *.bin
+*.log
+*.snap
+*.data-00000-of-00002
+*.data-00001-of-00002
+*.index
+ckpt/seq2seq/checkpoint/checkpoint
+*.md
+*.md
+*.ipynb

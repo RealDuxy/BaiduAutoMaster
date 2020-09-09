@@ -15,7 +15,7 @@ import pandas as pd
 from rouge import Rouge
 import pprint
 
-
+TEST_SAMPLES = 20000
 
 def train(params):
     assert params["mode"].lower() == "train", "change training mode to 'train'"
@@ -86,9 +86,9 @@ def predict_result(model, params, vocab, result_save_path):
 
 def save_predict_result(results, params):
     # 读取结果
-    test_df = pd.read_csv(params['test_x_dir'])
+    test_df = pd.read_csv(params['test_x_dir'])[:TEST_SAMPLES]
     # 填充结果
-    test_df['Prediction'] = results[:20000]
+    test_df['Prediction'] = results[:TEST_SAMPLES]
     # 　提取ID和预测结果两列
     test_df = test_df[['QID', 'Prediction']]
     # 保存结果.

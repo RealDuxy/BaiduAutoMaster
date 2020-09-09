@@ -68,7 +68,7 @@ def main():
     parser.add_argument("--epochs", default=30, help="train epochs", type=int)
     
     # mode
-    parser.add_argument("--mode", default='test', help="training, eval or test options")
+    parser.add_argument("--mode", default='train', help="training, eval or test options")
     parser.add_argument("--model", default='SequenceToSequence', help="which model to be slected")
     parser.add_argument("--greedy_decode", default=True, help="greedy_decoder")
 

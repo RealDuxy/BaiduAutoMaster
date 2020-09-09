@@ -3,6 +3,7 @@ from seq2seq_tf2.models.batcher import output_to_words
 from tqdm import tqdm
 
 
+
 def greedy_decode(model, dataset, vocab, params):
     # 存储结果
     batch_size = params["batch_size"]
@@ -39,18 +40,18 @@ def batch_greedy_decode(model, enc_data, vocab, params):
     context_vector, _ = model.attention(dec_hidden, enc_output)
     for t in range(params['max_dec_len']):
         # 单步预测
-        """
-        your code, 通过调用decoder得到预测的概率分布
-        """
+        # 得到预测的概率分布
+        dec_output, pred, dec_hidden = model.decoder(dec_input, dec_hidden, enc_output, context_vector)
         context_vector, _ = model.attention(dec_hidden, enc_output)
-        """
-        your code, 通过调用tf.argmax完成greedy search，得到predicted_ids
-        """
+
+        # greedy search，得到predicted_id
+        predicted_ids = tf.argmax(pred, 1).numpy()
+
         for index, predicted_id in enumerate(predicted_ids):
             predicts[index] += vocab.id_to_word(predicted_id) + ' '
-        
-        # using teacher forcing
-        dec_input = tf.expand_dims(predicted_ids, 1)
+
+        # # using teacher forcing
+        # dec_input = tf.expand_dims(predicted_ids, 1)
 
     results = []
     for predict in predicts:
