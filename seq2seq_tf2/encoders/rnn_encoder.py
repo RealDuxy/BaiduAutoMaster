@@ -20,7 +20,7 @@ class Encoder(tf.keras.layers.Layer):
         # 定义Embedding层，加载预训练的词向量
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,
                                                    weights=[embedding_matrix],
-                                                   trainable=False)
+                                                   trainable=True)
         # tf.keras.layers.GRU自动匹配cpu、gpu
         # 定义单向的GRU层
         self.gru = tf.keras.layers.GRU(units=self.enc_units  # dimensionality of the output space
