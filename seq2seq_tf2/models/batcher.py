@@ -8,7 +8,7 @@ UNKNOWN_TOKEN = '[UNK]'
 START_DECODING = '[START]'
 STOP_DECODING = '[STOP]'
 
-
+testnumber = 100
 class Vocab:
     def __init__(self, vocab_file, max_size):
         self.word2id = {UNKNOWN_TOKEN: 0, PAD_TOKEN: 1, START_DECODING: 2, STOP_DECODING: 3}
@@ -202,6 +202,7 @@ def example_generator(vocab, train_x_path, train_y_path, test_x_path, max_enc_le
             yield output
 
     if mode == "test":
+
         test_dataset = tf.data.TextLineDataset(test_x_path)
         for raw_record in test_dataset:
             article = raw_record.numpy().decode("utf-8")

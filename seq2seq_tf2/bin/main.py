@@ -70,7 +70,7 @@ def main():
     # mode
     parser.add_argument("--mode", default='test', help="training, eval or test options")
     parser.add_argument("--model", default='SequenceToSequence', help="which model to be slected")
-    parser.add_argument("--greedy_decode", default=True, help="greedy_decoder")
+    parser.add_argument("--greedy_decode", default=False, help="if True, apply greedy_decoder else, apply beam_decoder")
 
     args = parser.parse_args()
     params = vars(args)
@@ -88,8 +88,11 @@ def main():
         evaluate(params)
 
     elif params["mode"] == "test":
-        # params["batch_size"] = params["beam_size"]
+        params["batch_size"] = params["beam_size"]
+        print("go")
         test(params)
+        print("end")
+
 
 
 if __name__ == '__main__':

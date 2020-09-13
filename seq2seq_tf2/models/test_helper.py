@@ -39,19 +39,16 @@ def batch_greedy_decode(model, enc_data, vocab, params):
     
     context_vector, _ = model.attention(dec_hidden, enc_output)
     for t in range(params['max_dec_len']):
-        # 单步预测
-        # 得到预测的概率分布
+        # 单步预测 output
+        # 得到预测的概率分布 pred
         dec_output, pred, dec_hidden = model.decoder(dec_input, dec_hidden, enc_output, context_vector)
         context_vector, _ = model.attention(dec_hidden, enc_output)
 
-        # greedy search，得到predicted_id
+        # greedy search，即取概率最大的词, 得到predicted_id
         predicted_ids = tf.argmax(pred, 1).numpy()
 
         for index, predicted_id in enumerate(predicted_ids):
             predicts[index] += vocab.id_to_word(predicted_id) + ' '
-
-        # # using teacher forcing
-        # dec_input = tf.expand_dims(predicted_ids, 1)
 
     results = []
     for predict in predicts:
@@ -127,6 +124,7 @@ def beam_decode(model, batch, vocab, params):
                 cov_vec : beam_size-many list of previous coverage vector
             Returns: A dictionary of the results of all the ops computations (see below for more details)
         """
+        # 模型初始化设置,得到初步的final_dists, dec_hidden, attentions, p_gens
         final_dists, dec_hidden, attentions, p_gens = model(enc_outputs,  # shape=(3, 115, 256)
                                                                        dec_state,  # shape=(3, 256)
                                                                        enc_inp,  # shape=(3, 115)
@@ -136,10 +134,11 @@ def beam_decode(model, batch, vocab, params):
                                                                        enc_pad_mask,  # shape=(3, 115)
                                                                        use_coverage,
                                                                        prev_coverage)  # shape=(3, 115, 1)
-
+        # 在概率分布中取概率最高的2*beamsize个词(考虑UNK?)
         top_k_probs, top_k_ids = tf.nn.top_k(tf.squeeze(final_dists), k=params["beam_size"] * 2)
+        # 取log概率
         top_k_log_probs = tf.math.log(top_k_probs)
-
+        # 得到单步结果
         results = {"dec_state": dec_hidden,
                    "attention_vec": attentions,  # [batch_sz, max_len_x, 1]
                    "top_k_ids": top_k_ids,
@@ -152,7 +151,8 @@ def beam_decode(model, batch, vocab, params):
 
     # We run the encoder once and then we use the results to decode each time step token
     # state shape=(3, 256), enc_outputs shape=(3, 115, 256)
-    enc_outputs, state = model.call_encoder(batch[0]["enc_input"])
+    inputs = batch[0]["enc_input"]
+    enc_outputs, state = model.call_encoder(inputs)
     # print('enc_outputs is ', enc_outputs)
     # Initial Hypothesises (beam_size many list)
     # print('xxxxxxxx is ', batch[0]["enc_input"].shape[1])
@@ -220,6 +220,9 @@ def beam_decode(model, batch, vocab, params):
         # print('batch[0][max_oov_len] is ', batch[0]['max_oov_len'])
         # print('batch[0][sample_encoder_pad_mask is ', batch[0]['sample_encoder_pad_mask'])
         # print('prev_coverage is ', prev_coverage)
+        '''
+        对上一步的Hypothesis的结果,去最后一个result作为本轮的输入,得到本轮decode结果,更新Hypothesis
+        '''
         returns = decode_onestep(batch[0]['enc_input'],  # shape=(3, 115)
                                  enc_outputs,  # shape=(3, 115, 256)
                                  dec_input,  # shape=(3, 1)
@@ -233,6 +236,7 @@ def beam_decode(model, batch, vocab, params):
         # print(np.squeeze(returns["p_gen"]))
         # np.squeeze(returns["p_gen"])
         # print('returns is ', returns["p_gen"])
+
         topk_ids, topk_log_probs, new_states, attn_dists, p_gens = returns['top_k_ids'],\
                                                                                    returns['top_k_log_probs'],\
                                                                                    returns['dec_state'],\

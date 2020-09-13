@@ -8,7 +8,7 @@ sys.path.append(BASE_DIR)
 from seq2seq_tf2.models.sequence_to_sequence import SequenceToSequence
 from seq2seq_tf2.models.batcher import batcher, Vocab
 from seq2seq_tf2.models.train_helper import train_model
-from seq2seq_tf2.models.test_helper import greedy_decode
+from seq2seq_tf2.models.test_helper import greedy_decode, beam_decode
 from tqdm import tqdm
 from utils.data_utils import get_result_filename
 import pandas as pd
@@ -68,9 +68,16 @@ def test(params):
     print("Model restored")
     # for batch in b:
     #     yield batch_greedy_decode(model, batch, vocab, params)
-    if params['greedy_decode']:
-        # params['batch_size'] = 512
+    # if params['greedy_decode']:
+    #     # params['batch_size'] = 512
+    #     predict_result(model, params, vocab, params['test_save_dir'])
+    if params["greedy_decode"]:
         predict_result(model, params, vocab, params['test_save_dir'])
+    else:
+        for batch in b:
+            print(beam_decode(model, batch, vocab, params))
+
+
 
 
 def predict_result(model, params, vocab, result_save_path):
@@ -80,8 +87,9 @@ def predict_result(model, params, vocab, result_save_path):
     results = list(map(lambda x: x.replace(" ",""), results))
     # 保存结果
     save_predict_result(results, params)
-
     return results
+
+
 
 
 def save_predict_result(results, params):
