@@ -4,78 +4,127 @@ import re
 from jieba import posseg
 import jieba
 from tokenizer import segment
+# from seq2seq_tf2.bin.main import BASE_DIR
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
 
-def load_stop_words(stopword_path):
-    '''
-    加载停用词
-    :param stopword_path:
-    :return:
-    '''
-    file = open(stopword_path,'r',encoding='utf-8')
-    stop_words = file.readlines()
-    stop_words = [stop_word.strip() for stop_word in stop_words]
-    return stop_words
 
-# stop_words_list = load_stop_words(f'{BASE_DIR}/哈工大停用词表.txt')
-# print(f"停用词已加载: {len(stop_words_list)}")
-stop_words_list = ['|', '[', ']', '语音', '图片', ' ']
+REMOVE_WORDS = ['|', '[', ']', '语音', '图片', ' ']
 
-def filter_sentence(words_list):
-    '''
-    过滤停用词
-    :param words: 切好词的列表 [word1 ,word2 .......]
-    :param stop_words: 停用词列表
-    :return: 过滤后的停用词
-    '''
-    return [word for word in words_list if word not in stop_words_list]
 
-def preprocess_sentence(sentence):
-    seg_list = segment(sentence.strip(), cut_type='word')
-    seg_list = filter_sentence(seg_list)
-    seg_line = ' '.join(seg_list)
-    return seg_line
+def read_stopwords(path):
+    lines = set()
+    with open(path, mode='r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            lines.add(line)
+    return lines
+
+
+def remove_words(words_list):
+    words_list = [word for word in words_list if word not in REMOVE_WORDS]
+    return words_list
+
 
 def parse_data(train_path, test_path):
     train_df = pd.read_csv(train_path, encoding='utf-8')
-    # train_df.dropna(subset=['Report'], how='any', inplace=True)
+    train_df.dropna(subset=['Report'], how='any', inplace=True)
     train_df.fillna('', inplace=True)
-    # 将所有车型名字加入词典
-    for model in train_df.Model:
-        if model:
-            jieba.add_word(model.lower())
-    print("train model name added")
-
     train_x = train_df.Question.str.cat(train_df.Dialogue)
-    # print('train_x is ', len(train_x))
+    print('train_x is ', len(train_x))
     train_x = train_x.apply(preprocess_sentence)
     print('train_x is ', len(train_x))
     train_y = train_df.Report
-    # print('train_y is ', len(train_y))
+    print('train_y is ', len(train_y))
     train_y = train_y.apply(preprocess_sentence)
     print('train_y is ', len(train_y))
+    # if 'Report' in train_df.columns:
+        # train_y = train_df.Report
+        # print('train_y is ', len(train_y))
+
     test_df = pd.read_csv(test_path, encoding='utf-8')
     test_df.fillna('', inplace=True)
-    for model in test_df.Model:
-        if model:
-            jieba.add_word(model.lower())
-    print("test model name added")
     test_x = test_df.Question.str.cat(test_df.Dialogue)
     test_x = test_x.apply(preprocess_sentence)
     print('test_x is ', len(test_x))
-
+    test_y = []
+    # print('train_x is ', len(train_x))
+    # print('train_y is ', len(train_y))
+    # print('test_x is ', len(test_x))
     train_x.to_csv('{}/datasets/train_set.seg_x.txt'.format(BASE_DIR), index=None, header=False)
     train_y.to_csv('{}/datasets/train_set.seg_y.txt'.format(BASE_DIR), index=None, header=False)
     test_x.to_csv('{}/datasets/test_set.seg_x.txt'.format(BASE_DIR), index=None, header=False)
 
-if __name__ == '__main__':
-    # jieba.load_userdict(f"{BASE_DIR}/user_dict.txt")
 
-    # 需要更换成自己数据的存储地址
+def save_data(data_1, data_2, data_3, data_path_1, data_path_2, data_path_3, stop_words_path=''):
+    stopwords = read_stopwords(stop_words_path)
+    with open(data_path_1, 'w', encoding='utf-8') as f1:
+        count_1 = 0
+        for line in data_1:
+            # print(line)
+            if isinstance(line, str):
+                seg_list = segment(line.strip(), cut_type='word')
+                seg_list = remove_words(seg_list)
+                # seg_words = []
+                # for j in seg_list:
+                #     if j in stopwords:
+                #         continue
+                #     seg_words.append(j)
+                if len(seg_list) > 0:
+                    seg_line = ' '.join(seg_list)
+                    f1.write('%s' % seg_line)
+                    f1.write('\n')
+                    count_1 += 1
+        print('train_x_length is ', count_1)
+
+    with open(data_path_2, 'w', encoding='utf-8') as f2:
+        count_2 = 0
+        for line in data_2:
+            if isinstance(line, str):
+                seg_list = segment(line.strip(), cut_type='word')
+                seg_list = remove_words(seg_list)
+                # seg_words = []
+                # for j in seg_list:
+                #     if j in stopwords:
+                #         continue
+                #     seg_words.append(j)
+                # if len(seg_list) > 0:
+                seg_line = ' '.join(seg_list)
+                f2.write('%s' % seg_line)
+                f2.write('\n')
+                count_2 += 1
+        print('train_y_length is ', count_2)
+
+    with open(data_path_3, 'w', encoding='utf-8') as f3:
+        count_3 = 0
+        for line in data_3:
+            if isinstance(line, str):
+                seg_list = segment(line.strip(), cut_type='word')
+                seg_list = remove_words(seg_list)
+                if len(seg_list) > 0:
+                    seg_line = ' '.join(seg_list)
+                    f3.write('%s' % seg_line)
+                    f3.write('\n')
+                    count_3 += 1
+        print('test_y_length is ', count_3)
+
+
+def preprocess_sentence(sentence):
+    seg_list = segment(sentence.strip(), cut_type='word')
+    seg_list = remove_words(seg_list)
+    seg_line = ' '.join(seg_list)
+    return seg_line
+
+
+if __name__ == '__main__':
     parse_data('{}/datasets/AutoMaster_TrainSet.csv'.format(BASE_DIR),
                '{}/datasets/AutoMaster_TestSet.csv'.format(BASE_DIR))
-
+    # save_data(train_list_src,
+    #           train_list_trg,
+    #           test_list_src,
+    #           '{}/datasets/train_set.seg_x.txt'.format(BASE_DIR),
+    #           '{}/datasets/train_set.seg_y.txt'.format(BASE_DIR),
+    #           '{}/datasets/test_set.seg_x.txt'.format(BASE_DIR),
+    #           stop_words_path='{}/datasets/stop_words.txt'.format(BASE_DIR))
 
 
