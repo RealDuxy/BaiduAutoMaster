@@ -7,6 +7,11 @@ datasets/reverse_vocab.txt
 *.snap
 *.data-00000-of-00002
 *.data-00001-of-00002
-*.zip
 *.index
 ckpt/seq2seq/checkpoint/checkpoint
+*.md
+*.md
+*.ipynb
+*.zip
+
+
